@@ -268,6 +268,7 @@ impl Dispatcher {
                 }
                 Err(err) => {
                     trace!("pick route failed: {}", err);
+
                     if let Some(tag) = self.outbound_manager.read().await.default_handler() {
                         debug!(
                             "picked default route [{}] for {} -> {}",

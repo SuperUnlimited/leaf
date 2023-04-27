@@ -2,7 +2,7 @@ use std::io;
 
 use async_trait::async_trait;
 use bytes::{BufMut, BytesMut};
-use sha2::{Digest, Sha224};
+// use sha2::{Digest, Sha224};
 use tokio::io::AsyncWriteExt;
 
 use crate::{proxy::*, session::*};
@@ -27,9 +27,12 @@ impl OutboundStreamHandler for Handler {
         let mut stream =
             stream.ok_or_else(|| io::Error::new(io::ErrorKind::Other, "invalid input"))?;
         let mut buf = BytesMut::new();
-        let password = Sha224::digest(self.password.as_bytes());
-        let password = hex::encode(&password[..]);
-        buf.put_slice(password.as_bytes());
+        //OK: Changed here
+        // let password = Sha224::digest(self.password.as_bytes());
+        // let password = self.password.as_bytes();
+        // let password = hex::encode(&password[..]);
+        // buf.put_slice(password.as_bytes());
+        buf.put_slice(self.password.as_bytes());
         buf.put_slice(b"\r\n");
         buf.put_u8(0x01); // tcp
         sess.destination

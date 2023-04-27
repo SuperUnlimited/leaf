@@ -7,7 +7,7 @@ use async_trait::async_trait;
 use byteorder::{BigEndian, ByteOrder};
 use bytes::{BufMut, BytesMut};
 use futures::TryFutureExt;
-use sha2::{Digest, Sha224};
+// use sha2::{Digest, Sha224};
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 
 use crate::{
@@ -123,9 +123,12 @@ impl Handler {
     pub fn new(passwords: Vec<String>) -> Self {
         let mut keys = HashMap::new();
         for pass in passwords {
-            let key = Sha224::digest(pass.as_bytes());
-            let key = hex::encode(&key[..]);
-            keys.insert(key.as_bytes().to_vec(), ());
+            // OK: Changed here
+            // let key = Sha224::digest(pass.as_bytes());
+            // let key = pass.as_bytes();
+            // let key = hex::encode(&key[..]);
+            // keys.insert(key.as_bytes().to_vec(), ());
+            keys.insert(pass.as_bytes().to_vec(), ());
         }
         Handler { keys }
     }

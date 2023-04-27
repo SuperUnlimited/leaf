@@ -5,7 +5,7 @@ use async_trait::async_trait;
 use byteorder::{BigEndian, ByteOrder};
 use bytes::{BufMut, BytesMut};
 use futures::future::TryFutureExt;
-use sha2::{Digest, Sha224};
+// use sha2::{Digest, Sha224};
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt, ReadHalf, WriteHalf};
 
 use crate::{proxy::*, session::*};
@@ -37,9 +37,12 @@ impl OutboundDatagramHandler for Handler {
             return Err(io::Error::new(io::ErrorKind::Other, "invalid input"));
         };
         let mut buf = BytesMut::new();
-        let password = Sha224::digest(self.password.as_bytes());
-        let password = hex::encode(&password[..]);
-        buf.put_slice(password.as_bytes());
+        // OK: Changed here
+        // let password = Sha224::digest(self.password.as_bytes());
+        // let password = self.password.as_bytes();
+        // let password = hex::encode(&password[..]);
+        // buf.put_slice(password.as_bytes());
+        buf.put_slice(self.password.as_bytes());
         buf.put_slice(b"\r\n");
         buf.put_u8(0x03); // udp
         sess.destination
