@@ -8,6 +8,7 @@ use log::*;
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio::sync::RwLock;
 
+use crate::ErrorCallback;
 use crate::{
     app::SyncDnsClient,
     common::{self, sniff},
@@ -60,14 +61,17 @@ pub struct Dispatcher {
     dns_client: SyncDnsClient,
     #[cfg(feature = "stat")]
     stat_manager: SyncStatManager,
+    callback: ErrorCallback,
 }
 
 impl Dispatcher {
+
     pub fn new(
         outbound_manager: Arc<RwLock<OutboundManager>>,
         router: Arc<RwLock<Router>>,
         dns_client: SyncDnsClient,
         #[cfg(feature = "stat")] stat_manager: SyncStatManager,
+        c: ErrorCallback
     ) -> Self {
         Dispatcher {
             outbound_manager,
@@ -75,6 +79,7 @@ impl Dispatcher {
             dns_client,
             #[cfg(feature = "stat")]
             stat_manager,
+            callback: c,
         }
     }
 
@@ -132,6 +137,7 @@ impl Dispatcher {
                     tag.to_owned()
                 }
                 Err(err) => {
+                    /// OK: Failed here
                     trace!("pick route failed: {}", err);
                     if let Some(tag) = self.outbound_manager.read().await.default_handler() {
                         debug!(
@@ -175,6 +181,8 @@ impl Dispatcher {
                         &h.tag(),
                         e
                     );
+                    (&self.callback)();
+
                     log_request(&sess, h.tag(), h.color(), None);
                     return;
                 }
@@ -245,6 +253,9 @@ impl Dispatcher {
                     &h.tag(),
                     e
                 );
+                
+                (self.callback)();
+
                 log_request(&sess, h.tag(), h.color(), None);
             }
         }
@@ -267,6 +278,7 @@ impl Dispatcher {
                     tag.to_owned()
                 }
                 Err(err) => {
+                    /// OK: Failed here
                     trace!("pick route failed: {}", err);
 
                     if let Some(tag) = self.outbound_manager.read().await.default_handler() {
@@ -327,6 +339,8 @@ impl Dispatcher {
                     &h.tag(),
                     e
                 );
+                (&self.callback)();
+
                 log_request(&sess, h.tag(), h.color(), None);
                 Err(e)
             }

@@ -26,3 +26,6 @@ auto-reload = ["leaf/auto-reload"]
 
 [dependencies]
 leaf = { path = "../leaf", default-features = false, optional = true }
+tokio = { version = "1", features = ["rt"] }
+log = { version = "0.4", features = ["std"] }
+log4rs = "1.2"

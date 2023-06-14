@@ -354,7 +354,9 @@ pub struct StartOptions {
     pub runtime_opt: RuntimeOption,
 }
 
-pub fn start(rt_id: RuntimeId, opts: StartOptions) -> Result<(), Error> {
+type ErrorCallback = extern fn();
+
+pub fn start(rt_id: RuntimeId, opts: StartOptions, error_callback: ErrorCallback) -> Result<(), Error> {
     #[cfg(debug_assertions)]
     println!("start with options:\n{:#?}", opts);
 
@@ -400,6 +402,7 @@ pub fn start(rt_id: RuntimeId, opts: StartOptions) -> Result<(), Error> {
         dns_client.clone(),
         #[cfg(feature = "stat")]
         stat_manager.clone(),
+        error_callback
     ));
 
     let dispatcher_weak = Arc::downgrade(&dispatcher);

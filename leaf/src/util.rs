@@ -47,6 +47,10 @@ fn get_start_options(
     }
 }
 
+extern fn dummy() {
+
+}
+
 pub fn run_with_options(
     rt_id: crate::RuntimeId,
     config_path: String,
@@ -65,7 +69,8 @@ pub fn run_with_options(
         threads,
         stack_size,
     );
-    crate::start(rt_id, opts)
+
+    crate::start(rt_id, opts, dummy)
 }
 
 async fn test_tcp_outbound(

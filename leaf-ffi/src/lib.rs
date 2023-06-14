@@ -19,6 +19,8 @@ pub const ERR_RUNTIME_MANAGER: i32 = 7;
 /// No associated config file.
 pub const ERR_NO_CONFIG_FILE: i32 = 8;
 
+extern fn dummy() {}
+
 fn to_errno(e: leaf::Error) -> i32 {
     match e {
         leaf::Error::Config(..) => ERR_CONFIG,
@@ -89,15 +91,15 @@ pub extern "C" fn leaf_run_with_options(
 ///                    or .json, according to the enabled features.
 /// @return ERR_OK on finish running, any other errors means a startup failure.
 #[no_mangle]
-pub extern "C" fn leaf_run(rt_id: u16, config_path: *const c_char) -> i32 {
+pub extern "C" fn leaf_run(rt_id: u16, config_path: *const c_char, callback: extern fn()) -> i32 {
     if let Ok(config_path) = unsafe { CStr::from_ptr(config_path).to_str() } {
         let opts = leaf::StartOptions {
             config: leaf::Config::File(config_path.to_string()),
-            #[cfg(feature = "auto-reload")]
-            auto_reload: false,
             runtime_opt: leaf::RuntimeOption::SingleThread,
+           #[cfg(feature = "auto-reload")]
+            auto_reload: true,
         };
-        if let Err(e) = leaf::start(rt_id, opts) {
+        if let Err(e) = leaf::start(rt_id, opts, callback) {
             return to_errno(e);
         }
         ERR_OK
@@ -115,7 +117,7 @@ pub extern "C" fn leaf_run_with_config_string(rt_id: u16, config: *const c_char)
             auto_reload: false,
             runtime_opt: leaf::RuntimeOption::SingleThread,
         };
-        if let Err(e) = leaf::start(rt_id, opts) {
+        if let Err(e) = leaf::start(rt_id, opts, dummy) {
             return to_errno(e);
         }
         ERR_OK
