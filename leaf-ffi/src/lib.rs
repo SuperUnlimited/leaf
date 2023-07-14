@@ -93,9 +93,11 @@ pub extern "C" fn leaf_run_with_options(
 #[no_mangle]
 pub extern "C" fn leaf_run(rt_id: u16, config_path: *const c_char, callback: extern fn()) -> i32 {
     if let Ok(config_path) = unsafe { CStr::from_ptr(config_path).to_str() } {
+        let stack_size = 2 * 1024 * 1024;
+
         let opts = leaf::StartOptions {
             config: leaf::Config::File(config_path.to_string()),
-            runtime_opt: leaf::RuntimeOption::SingleThread,
+            runtime_opt: leaf::RuntimeOption::MultiThreadAuto(stack_size),
            #[cfg(feature = "auto-reload")]
             auto_reload: true,
         };
