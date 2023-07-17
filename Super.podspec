@@ -6,6 +6,6 @@ Pod::Spec.new do |s|
   s.author                  = "Eric"
   s.ios.deployment_target   = '14.0'
   s.homepage                = "https://github.com/SuperUnlimited/leaf"
-  s.source                  = { :http => "https://github.com/SuperUnlimited/leaf/releases/download/v1.0.1/leaf.xcframework.zip" }
-  s.ios.vendored_frameworks = "leaf.xcframework"
+  s.source                  = { :git => "git@github.com:SuperUnlimited/leaf.git"}
+  s.ios.vendored_frameworks = "bin/leaf.xcframework"
 end
